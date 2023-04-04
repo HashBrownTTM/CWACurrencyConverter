@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".FrankfurterFragment"
+    android:padding="10dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cvFromCurrency"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginVertical="10dp"
+            app:cardCornerRadius="10dp"
+            app:contentPadding="10dp"
+            app:cardBackgroundColor="@color/teal_700">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <Spinner
+                    android:id="@+id/spFromCurrency"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentStart="true"
+                    android:textSize="12sp"/>
+
+                <EditText
+                    android:id="@+id/txtFromCurrency"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/spFromCurrency"
+                    android:layout_toStartOf="@id/lblFromCurrency"
+                    android:text="1"
+                    android:inputType="numberDecimal"
+                    android:background="@android:color/transparent"
+                    android:maxLines="5"
+                    android:scrollHorizontally="false"
+                    android:padding="5dp"
+                    android:gravity="end|center_vertical"
+                    android:textSize="25sp" />
+
+                <TextView
+                    android:id="@+id/lblFromCurrency"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/txtFromCurrency"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:background="@android:color/transparent"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:text="ABC"
+                    android:textSize="14sp" />
+
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cvToCurrency"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/cvFromCurrency"
+            android:layout_marginVertical="10dp"
+            app:cardCornerRadius="10dp"
+            app:contentPadding="10dp"
+            app:cardBackgroundColor="@color/teal_700">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <Spinner
+                    android:id="@+id/spToCurrency"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentStart="true"
+                    android:textSize="12sp"/>
+
+                <TextView
+                    android:id="@+id/txtToCurrency"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/spToCurrency"
+                    android:layout_toStartOf="@+id/lblToCurrency"
+                    android:text="0"
+                    android:background="@android:color/transparent"
+                    android:scrollHorizontally="false"
+                    android:padding="5dp"
+                    android:gravity="end|center_vertical"
+                    android:textSize="25sp" />
+
+                <TextView
+                    android:id="@+id/lblToCurrency"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/txtToCurrency"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:background="@android:color/transparent"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:text="ABC"
+                    android:textSize="14sp" />
+
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/lblCurrencyConversionRate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/cvToCurrency"
+            android:padding="10dp"
+            android:textSize="14sp"
+            android:gravity="center|end"
+            android:text="1 ABC = 0.5 ABC"/>
+
+        <TextView
+            android:id="@+id/lblLastUpdated"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/lblCurrencyConversionRate"
+            android:padding="10dp"
+            android:text="Rates as of "
+            android:gravity="end"
+            android:textSize="14sp"/>
+
+    </RelativeLayout>
+</FrameLayout>
