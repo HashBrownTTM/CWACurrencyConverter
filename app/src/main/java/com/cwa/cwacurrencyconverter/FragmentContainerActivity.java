@@ -12,6 +12,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.cwa.cwacurrencyconverter.fragments.CurrencyAPIFragment;
+import com.cwa.cwacurrencyconverter.fragments.FrankfurterFragment;
+
 public class FragmentContainerActivity extends AppCompatActivity implements View.OnClickListener {
     FrameLayout flContainer;
     ImageButton btnBack;

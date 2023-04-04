@@ -1,15 +1,10 @@
-package com.cwa.cwacurrencyconverter;
+package com.cwa.cwacurrencyconverter.fragments;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
@@ -25,6 +20,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import com.cwa.cwacurrencyconverter.R;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,26 +40,30 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link FrankfurterFragment} factory method to
+ * Use the {@link  CurrencyAPIFragment} factory method to
  * create an instance of this fragment.
  */
-public class FrankfurterFragment extends Fragment {
+public class CurrencyAPIFragment extends Fragment {
     Spinner spToCurrency, spFromCurrency;
     EditText txtFromCurrency;
     TextView txtToCurrency;
     TextView lblToCurrency, lblFromCurrency, lblLastUpdated, lblCurrencyConversionRate;
 
+    String code;
     //progressDialog
     private ProgressDialog progressDialog;
 
-    private String[] countryCodeList, countryNameList;
-    ArrayAdapter<String> countryCodeAdapter;
+    private ArrayList<String> currencyArrayList;
+    ArrayList<String> currencyCodeList, currencyNameList;
+
+    ArrayAdapter<String> spinnerCurrencyAdapter;
 
     String fromCurrency, toCurrency;
     String currencyJson = "";
@@ -67,7 +72,6 @@ public class FrankfurterFragment extends Fragment {
     private double exchangeRate = 0;
 
     private String dateString = "";
-    private ArrayList<String> currencyArrayList;
 
 
     @Override
@@ -95,37 +99,22 @@ public class FrankfurterFragment extends Fragment {
         filterArray[0] = new InputFilter.LengthFilter(15);
         txtFromCurrency.setFilters(filterArray);
 
-        InitialiseStringArrays();
+        currencyCodeList = new ArrayList<>();
+        currencyNameList = new ArrayList<>();
         currencyArrayList = new ArrayList<>();
-        loadArrayList();
-
-        //TODO: INITIAL
-        countryCodeAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, currencyArrayList);
-        spFromCurrency.setAdapter(countryCodeAdapter);
-        spToCurrency.setAdapter(countryCodeAdapter);
-
-        spFromCurrency.setSelection(0);
-        spToCurrency.setSelection(1);
-
-        fromCountryPosition = spFromCurrency.getSelectedItemPosition();
-        toCountryPosition = spToCurrency.getSelectedItemPosition();
-
-        fromCurrency = countryCodeList[fromCountryPosition];
-        toCurrency = countryCodeList[toCountryPosition];
-
-        lblFromCurrency.setText(fromCurrency);
-        lblToCurrency.setText(toCurrency);
 
         progressDialog = new ProgressDialog(getContext());
         progressDialog.setTitle("Please wait");
         progressDialog.setMessage("Getting currency conversion data");
         progressDialog.setCanceledOnTouchOutside(false);
 
+        //TODO: INITIAL
         if (isInternetConnected()) {
             progressDialog.show();
+            InitialiseStringArrays();
 
-            getExchangeRateData();
-            getUpdatedDate();
+
+            //getUpdatedDate();
         }
         else {
             Toast.makeText(getContext(), "No internet connection", Toast.LENGTH_SHORT).show();
@@ -138,8 +127,8 @@ public class FrankfurterFragment extends Fragment {
                 fromCountryPosition = position;
                 toCountryPosition = spToCurrency.getSelectedItemPosition();;
 
-                fromCurrency = countryCodeList[position];
-                toCurrency = countryCodeList[spToCurrency.getSelectedItemPosition()];
+                fromCurrency = currencyCodeList.get(position);
+                toCurrency = currencyCodeList.get(toCountryPosition);
 
                 lblFromCurrency.setText(fromCurrency);
                 lblToCurrency.setText(toCurrency);
@@ -152,7 +141,6 @@ public class FrankfurterFragment extends Fragment {
                 else{
                     if (isInternetConnected()) {
                         getExchangeRateData();
-
                     }
                 }
             }
@@ -169,8 +157,8 @@ public class FrankfurterFragment extends Fragment {
                 fromCountryPosition = spFromCurrency.getSelectedItemPosition();
                 toCountryPosition = position;
 
-                toCurrency = countryCodeList[toCountryPosition];
-                fromCurrency = countryCodeList[fromCountryPosition];
+                toCurrency = currencyCodeList.get(toCountryPosition);
+                fromCurrency = currencyCodeList.get(fromCountryPosition);
 
                 lblFromCurrency.setText(fromCurrency);
                 lblToCurrency.setText(toCurrency);
@@ -206,8 +194,8 @@ public class FrankfurterFragment extends Fragment {
                     fromCountryPosition = spFromCurrency.getSelectedItemPosition();
                     toCountryPosition = spToCurrency.getSelectedItemPosition();
 
-                    fromCurrency = countryCodeList[fromCountryPosition];
-                    toCurrency = countryCodeList[toCountryPosition];
+                    fromCurrency = currencyCodeList.get(fromCountryPosition);
+                    toCurrency = currencyCodeList.get(toCountryPosition);
 
                     lblFromCurrency.setText(fromCurrency);
                     lblToCurrency.setText(toCurrency);
@@ -226,7 +214,6 @@ public class FrankfurterFragment extends Fragment {
                 else {
                     txtToCurrency.setText("");
                 }
-
             }
 
             @Override
@@ -234,6 +221,8 @@ public class FrankfurterFragment extends Fragment {
 
             }
         });
+
+        /**/
     }
 
     private boolean isInternetConnected() {
@@ -243,36 +232,79 @@ public class FrankfurterFragment extends Fragment {
     }
 
     private void InitialiseStringArrays() {
-        countryCodeList = new String[]{
-                "AUD","BGN","BRL","CAD",
-                "CHF","CNY","CZK","DKK",
-                "EUR", "GBP","HKD","HUF",
-                "IDR", "ILS","INR","ISK",
-                "JPY", "KRW","MXN","MYR",
-                "NOK", "NZD","PHP","PLN",
-                "RON", "SEK","SGD","THB",
-                "TRY", "USD","ZAR"
-        };
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
 
-        countryNameList = new String[]{
-                "Australian Dollar", "Bulgarian Lev", "Brazilian Real", "Canadian Dollar",
-                "Swiss Franc", "Chinese Yuan", "Czech Koruna", "Danish Krone",
-                "Euro", "British Pound", "Hong Kong Dollar", "Hungarian Forint",
-                "Indonesian Rupiah", "Israeli New Sheqel", "Indian Rupee", "Icelandic Króna",
-                "Japanese Yen", "South Korean Won", "Mexican Peso", "Malaysian Ringgit",
-                "Norwegian Krone", "New Zealand Dollar", "Philippine Peso", "Polish Zloty",
-                "Romanian Leu", "Swedish Krona", "Singapore Dollar", "Thai Baht",
-                "Turkish Lira", "US Dollar", "South African Rand"
-        };
-
-    }
-
-    private void loadArrayList() {
+        currencyCodeList.clear();
+        currencyNameList.clear();
         currencyArrayList.clear();
 
-        for(int i = 0; i < countryCodeList.length; ++i){
-            currencyArrayList.add(countryNameList[i] + " (" + countryCodeList[i] + ")");
-        }
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() { //like doInBackground in AsyncTask
+                try {
+                    String GET_URL = "https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies.json";
+                    URL url = new URL(GET_URL);
+                    HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                    httpURLConnection.setRequestMethod("GET");
+
+                    int responseCode = httpURLConnection.getResponseCode();
+                    if(responseCode == HttpURLConnection.HTTP_OK){ //successful
+                        BufferedReader in = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
+                        String inputLine;
+                        StringBuilder response = new StringBuilder();
+
+                        while((inputLine = in.readLine()) != null){
+                            response.append(inputLine);
+                        }in.close();
+
+                        JSONObject jsonObject = new JSONObject(response.toString());
+
+                        Iterator<String> keys = jsonObject.keys();
+
+                        while(keys.hasNext()){
+                            String code = keys.next();
+                            String currencyName = jsonObject.getString(code);
+
+                            currencyCodeList.add(code);
+                            currencyNameList.add(currencyName);
+                        }
+                    }
+                }
+                catch (IOException | JSONException e) {
+                    e.printStackTrace();
+                }
+
+                handler.post(new Runnable() {//like onPostExecute
+                    @Override
+                    public void run() {
+                        for(int i = 0; i < currencyCodeList.size(); ++i){
+                            currencyArrayList.add(currencyNameList.get(i) + " (" + currencyCodeList.get(i) + ")");
+                        }
+
+                        spinnerCurrencyAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, currencyArrayList);
+
+                        spFromCurrency.setAdapter(spinnerCurrencyAdapter);
+                        spToCurrency.setAdapter(spinnerCurrencyAdapter);
+
+                        spFromCurrency.setSelection(0);
+                        spToCurrency.setSelection(1);
+
+                        fromCountryPosition = spFromCurrency.getSelectedItemPosition();
+                        toCountryPosition = spToCurrency.getSelectedItemPosition();
+
+                        fromCurrency = currencyCodeList.get(fromCountryPosition);
+                        toCurrency = currencyCodeList.get(toCountryPosition);
+
+                        lblFromCurrency.setText(fromCurrency);
+                        lblToCurrency.setText(toCurrency);
+
+                        getExchangeRateData();
+                        getUpdatedDate();
+                    }
+                });
+            }
+        });
     }
 
     //TODO: FOR CURRENCY CONVERSION
@@ -284,7 +316,7 @@ public class FrankfurterFragment extends Fragment {
             @Override
             public void run() { //like doInBackground in AsyncTask
                 try {
-                    String GET_URL = "https://api.frankfurter.app/latest?from=" + fromCurrency + "&to=" + toCurrency;
+                    String GET_URL = "https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/" + fromCurrency + "/" + toCurrency + ".json";
                     URL url = new URL(GET_URL);
                     HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                     httpURLConnection.setRequestMethod("GET");
@@ -303,7 +335,7 @@ public class FrankfurterFragment extends Fragment {
 
                         JSONObject jsonObject = new JSONObject(response.toString());
 
-                        exchangeRate = jsonObject.getJSONObject("rates").getDouble(toCurrency);
+                        exchangeRate = jsonObject.getDouble(toCurrency);
                         progressDialog.dismiss();
                     }
                 }
@@ -342,7 +374,7 @@ public class FrankfurterFragment extends Fragment {
             @Override
             public void run() { //like doInBackground in AsyncTask
                 try {
-                    String GET_URL = "https://api.frankfurter.app/latest";
+                    String GET_URL = "https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/" + fromCurrency + "/" + toCurrency + ".json";
                     URL url = new URL(GET_URL);
                     HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                     httpURLConnection.setRequestMethod("GET");
