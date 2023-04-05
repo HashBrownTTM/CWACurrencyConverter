@@ -3,10 +3,14 @@
 - [`Introduction`](#introduction)
     - [`1. Frankfurter`](#1-frankfurterapi) 
     - [`2. Currency-Api`](#2-currency-api)
+    
 - [`Json Format for Both API`](#json-format-for-both-api)
     - [`1. Frankfurter`](#1-frankfurther)
     - [`2. Currency-Api`](#2-currency-api-1)
+    
 - [`Getting The Exhange Rates`](#getting-the-exchange-rates)
+
+- [`Final Note`](#final-note)
 
 
 ## Introduction
@@ -297,3 +301,7 @@ or just simply with:
 ~~~
 new GetExchangeRateData().execute();
 ~~~
+
+# Final Note
+
+There are definitely much better ways of making an application like this, such as using Retrofit with Gson for REST Api queries and json parsing, or using Kotlin's Coroutines, so this is just one example of how it can be done.
