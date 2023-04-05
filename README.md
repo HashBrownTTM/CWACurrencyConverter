@@ -19,8 +19,7 @@ currently the app uses 2 currrency conversion APIs, namely:
 
 | Using Frankfurter | Using Currency-Api  |
 |---|---|
-|   |   |
-|   |   |
+| *[FrankfurterFragment.java](https://github.com/HashBrownTTM/CWACurrencyConverter/blob/master/app/src/main/java/com/cwa/cwacurrencyconverter/fragments/FrankfurterFragment.java)*  | *[CurrencyAPIFragment.java](https://github.com/HashBrownTTM/CWACurrencyConverter/blob/master/app/src/main/java/com/cwa/cwacurrencyconverter/fragments/CurrencyAPIFragment.java)* |
 |   |   |
 
 ## Json format for both API
@@ -34,6 +33,7 @@ public void getExchangeRateData(){
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     Handler handler = new Handler(Looper.getMainLooper());
 
+    //performs a network request to retrieve the currency exchange rate
     executorService.execute(new Runnable() {
         @Override
         public void run() { //like doInBackground in AsyncTask
@@ -53,8 +53,8 @@ public void getExchangeRateData(){
                         response.append(inputLine);
                     }in.close();
 
-                    currencyJson = response.toString();
-
+                    
+                    //response.toString being the json of the api as a String
                     JSONObject jsonObject = new JSONObject(response.toString());
 
                     exchangeRate = jsonObject.getJSONObject("rates").getDouble(toCurrency);
@@ -65,6 +65,7 @@ public void getExchangeRateData(){
                 e.printStackTrace();
             }
 
+            //updates the UI
             handler.post(new Runnable() {//like onPostExecute
                 @Override
                 public void run() {
@@ -96,15 +97,15 @@ getExchangeRateData();
 
 Alternatively, you can use AsyncTask<>
 
-- NOTE: The default constructor in android.os.AsyncTask is deprecated, so it's not really recommended
+- NOTE: The default constructor in android.os.AsyncTask is deprecated, so it is not recommended
 
 ~~~
 public class GetExchangeRateData extends AsyncTask<Void, Void, Double> {
+
+    //performs a network request to retrieve the currency exchange rate
     protected Double doInBackground(Void... voids) {
         double exchangeRate = 0;
-
         try {
-            //you may replace this with the URL of you desired API
             String GET_URL = "https://api.frankfurter.app/latest?from=" + fromCurrency + "&to=" + toCurrency;
             URL url = new URL(GET_URL);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
@@ -118,23 +119,26 @@ public class GetExchangeRateData extends AsyncTask<Void, Void, Double> {
 
                 while((inputLine = in.readLine()) != null){
                     response.append(inputLine);
-                }in.close();
+                }
+                in.close();
 
-                currencyJson = response.toString();
-
+                //response.toString being the json of the api as a String
                 JSONObject jsonObject = new JSONObject(response.toString());
 
                 exchangeRate = jsonObject.getJSONObject("rates").getDouble(toCurrency);
                 progressDialog.dismiss();
             }
-        } catch (IOException | JSONException e) {
+        }
+        catch (IOException | JSONException e) {
             e.printStackTrace();
         }
+        
+        //return the exchangeRate, so that it's used in onPostExecute() 
         return exchangeRate;
     }
 
+    //updates the UI
     protected void onPostExecute(Double exchangeRate) {
-
         if (exchangeRate != 0 && !txtFromCurrency.getText().toString().equals("")) {
             double input = Double.parseDouble(txtFromCurrency.getText().toString());
             BigDecimal result = new BigDecimal(input * exchangeRate);
@@ -153,8 +157,6 @@ public class GetExchangeRateData extends AsyncTask<Void, Void, Double> {
 ~~~
 
 and calling this function with:
-
-simply calling the function in your code with:
 
 ~~~
 GetExchangeRateData getExchangeRateData = new GetExchangeRateData();
