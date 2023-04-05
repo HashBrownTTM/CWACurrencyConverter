@@ -56,7 +56,6 @@ public class CurrencyAPIFragment extends Fragment {
     TextView txtToCurrency;
     TextView lblToCurrency, lblFromCurrency, lblLastUpdated, lblCurrencyConversionRate;
 
-    String code;
     //progressDialog
     private ProgressDialog progressDialog;
 
@@ -108,13 +107,10 @@ public class CurrencyAPIFragment extends Fragment {
         progressDialog.setMessage("Getting currency conversion data");
         progressDialog.setCanceledOnTouchOutside(false);
 
-        //TODO: INITIAL
+        //TODO: TODO: Initialising arrays for currency names and currency codes
         if (isInternetConnected()) {
             progressDialog.show();
             InitialiseStringArrays();
-
-
-            //getUpdatedDate();
         }
         else {
             Toast.makeText(getContext(), "No internet connection", Toast.LENGTH_SHORT).show();
@@ -222,9 +218,9 @@ public class CurrencyAPIFragment extends Fragment {
             }
         });
 
-        /**/
     }
 
+    //requires ACCESS_NETWORK_STATE in AndroidManifest
     private boolean isInternetConnected() {
         ConnectivityManager connectivityManager = (ConnectivityManager) requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
@@ -275,7 +271,7 @@ public class CurrencyAPIFragment extends Fragment {
                     e.printStackTrace();
                 }
 
-                handler.post(new Runnable() {//like onPostExecute
+                handler.post(new Runnable() {//like onPostExecute in AsyncTask
                     @Override
                     public void run() {
                         for(int i = 0; i < currencyCodeList.size(); ++i){
@@ -312,9 +308,10 @@ public class CurrencyAPIFragment extends Fragment {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
 
+        //performs a network request to retrieve the currency exchange rate
         executorService.execute(new Runnable() {
             @Override
-            public void run() { //like doInBackground in AsyncTask
+            public void run() {
                 try {
                     String GET_URL = "https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/" + fromCurrency + "/" + toCurrency + ".json";
                     URL url = new URL(GET_URL);
@@ -329,7 +326,8 @@ public class CurrencyAPIFragment extends Fragment {
 
                         while((inputLine = in.readLine()) != null){
                             response.append(inputLine);
-                        }in.close();
+                        }
+                        in.close();
 
                         currencyJson = response.toString();
 
@@ -343,7 +341,8 @@ public class CurrencyAPIFragment extends Fragment {
                     e.printStackTrace();
                 }
 
-                handler.post(new Runnable() {//like onPostExecute
+                //updates the UI
+                handler.post(new Runnable() {
                     @Override
                     public void run() {
                         if (exchangeRate != 0 && !txtFromCurrency.getText().toString().equals("")) {

@@ -71,7 +71,6 @@ public class FrankfurterFragment extends Fragment {
     private String dateString = "";
     private ArrayList<String> currencyArrayList;
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -92,16 +91,19 @@ public class FrankfurterFragment extends Fragment {
         lblLastUpdated = view.findViewById(R.id.lblLastUpdated);
 
         txtFromCurrency.requestFocus();
+
         //sets the character limit in txtFromCurrency to 15
         InputFilter[] filterArray = new InputFilter[1];
         filterArray[0] = new InputFilter.LengthFilter(15);
         txtFromCurrency.setFilters(filterArray);
 
+        //TODO: Initialising arrays for currency names and currency codes
         InitialiseStringArrays();
         currencyArrayList = new ArrayList<>();
+
+        //loading the arrayList with the currency name and code, which will be used for the spinner adapter
         loadArrayList();
 
-        //TODO: INITIAL
         countryCodeAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, currencyArrayList);
         spFromCurrency.setAdapter(countryCodeAdapter);
         spToCurrency.setAdapter(countryCodeAdapter);
@@ -109,6 +111,8 @@ public class FrankfurterFragment extends Fragment {
         spFromCurrency.setSelection(0);
         spToCurrency.setSelection(1);
 
+        /*getting the position of the selected item from the spinners, to then use to get the
+        selected item's currency code from the countryCodeList array*/
         fromCountryPosition = spFromCurrency.getSelectedItemPosition();
         toCountryPosition = spToCurrency.getSelectedItemPosition();
 
@@ -154,7 +158,6 @@ public class FrankfurterFragment extends Fragment {
                 else{
                     if (isInternetConnected()) {
                         getExchangeRateData();
-
                     }
                 }
             }
@@ -195,7 +198,7 @@ public class FrankfurterFragment extends Fragment {
             }
         });
 
-        //TODO: ON TEXT_CHANGE
+        //TODO: ON TEXT_CHANGED
         txtFromCurrency.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -238,6 +241,7 @@ public class FrankfurterFragment extends Fragment {
         });
     }
 
+    //requires ACCESS_NETWORK_STATE in AndroidManifest
     private boolean isInternetConnected() {
         ConnectivityManager connectivityManager = (ConnectivityManager) requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
@@ -282,9 +286,10 @@ public class FrankfurterFragment extends Fragment {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
 
+        //performs a network request to retrieve the currency exchange rate
         executorService.execute(new Runnable() {
             @Override
-            public void run() { //like doInBackground in AsyncTask
+            public void run() {
                 try {
                     String GET_URL = "https://api.frankfurter.app/latest?from=" + fromCurrency + "&to=" + toCurrency;
                     URL url = new URL(GET_URL);
@@ -299,10 +304,10 @@ public class FrankfurterFragment extends Fragment {
 
                         while((inputLine = in.readLine()) != null){
                             response.append(inputLine);
-                        }in.close();
+                        }
+                        in.close();
 
-                        currencyJson = response.toString();
-
+                        //response.toString being the json of the api as a String
                         JSONObject jsonObject = new JSONObject(response.toString());
 
                         exchangeRate = jsonObject.getJSONObject("rates").getDouble(toCurrency);
@@ -313,7 +318,8 @@ public class FrankfurterFragment extends Fragment {
                     e.printStackTrace();
                 }
 
-                handler.post(new Runnable() {//like onPostExecute
+                //updates the UI
+                handler.post(new Runnable() {
                     @Override
                     public void run() {
                         if (exchangeRate != 0 && !txtFromCurrency.getText().toString().equals("")) {
