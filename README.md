@@ -1,4 +1,12 @@
 # CWA Currency Converter
+
+- [`Introduction`](#introduction)
+- [`Json Format for Both API`](#json-format-for-both-api)
+- [`Getting The Exhange Rates`](#getting-the-exchange-rates)
+
+
+## Introduction
+
 A simple currency conversion application built using Java and Android studio, which allows users to convert between different currencies in real-time;
 currently the app uses 2 currrency conversion APIs, namely:
 
