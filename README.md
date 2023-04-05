@@ -165,7 +165,7 @@ public void getExchangeRateData(){
     //performs a network request to retrieve the currency exchange rate
     executorService.execute(new Runnable() {
         @Override
-        public void run() { //like doInBackground in AsyncTask
+        public void run() {
             try {
                 String GET_URL = "https://api.frankfurter.app/latest?from=" + fromCurrency + "&to=" + toCurrency;
                 URL url = new URL(GET_URL);
@@ -195,7 +195,7 @@ public void getExchangeRateData(){
             }
 
             //updates the UI
-            handler.post(new Runnable() {//like onPostExecute
+            handler.post(new Runnable() {
                 @Override
                 public void run() {
                     if (exchangeRate != 0 && !txtFromCurrency.getText().toString().equals("")) {
